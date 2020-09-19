@@ -108,11 +108,20 @@ def view_edit_listing(listing_id):
     if listing is None:
         return render_template('404_listing.html')
     if form.validate_on_submit():
+        # Update the database
+        listing.company = form.company.data
+        listing.title = form.title.data
+        listing.description = form.description.data
+        listing.location = form.location.data
+        listing.date_added = form.date_added.data
+        listing.resume = form.resume.data
+        listing.cover_letter = form.cover_letter.data
 
         flash(f"Congratulations, you have edited an application for {listing.title} at {listing.company}")
         jobs = current_user.listings
         return render_template('index.html', title='Home', jobs=jobs)
     elif request.method == "GET":
+        # Populate the form fields with the current values
         form.company.data = listing.company
         form.title.data = listing.title
         form.description.data = listing.description
