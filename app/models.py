@@ -49,6 +49,8 @@ class Listing(db.Model):
     description = db.Column(db.Text, index=False, unique=False)
     location = db.Column(db.String(), index=True, unique=False)
     date_added = db.Column(db.DateTime, index=True, default=datetime.today())
+    status = db.Column(db.String(), index=False, unique=False,
+                       default="No Response", nullable=False)
     resume_id = db.Column(db.Integer, db.ForeignKey('resume.id'),
                 nullable=False)
     cl_id = db.Column(db.Integer, db.ForeignKey('cover_letter.id'),

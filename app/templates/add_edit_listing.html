@@ -20,7 +20,7 @@
         </p>
         <p>
             {{ form.description.label }}<br>
-            {{ form.description(size=32) }}<br>
+            {{ form.description(size=32, rows='40',cols='100') }}<br>
             {% for error in form.description.errors %}
             <span style="color: red;">{{ error }}</span>
             {% endfor %}
@@ -49,6 +49,13 @@
         <p>
             {{ form.cover_letter.label }}<br>
             {{ form.cover_letter(size=32) }}<br>
+            {% for error in form.cover_letter.errors %}
+            <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.status.label }}<br>
+            {{ form.status }}<br>
             {% for error in form.cover_letter.errors %}
             <span style="color: red;">{{ error }}</span>
             {% endfor %}

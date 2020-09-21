@@ -2,14 +2,26 @@
 
 {% block content %}
         <h1>Hello, {{ current_user.username }}!</h1>
+        <form method="POST" action="">
+                <h2>Filter Listings 
+                        {{ form.hidden_tag() }}
+                </h2>
+                <h3>
+                        Location: {{ form.location }}
+                        Status: {{ form.status }}
+                        <button type="submit">Filter</button>
+                </h3>
+        </form>
         {% for job in jobs %}
         <div><p><b>Role:</b>{{ job.title }} 
                 <b>Company:</b> {{ job.company }} 
                 <b>Location:</b> {{ job.location }} 
                 <b>Resume:</b> {{ job.resume }} 
                 <b>Cover Letter:</b> {{ job.cover_letter }} 
+                <b>Status:</b> {{ job.status }} 
                 <b>Date Applied:</b> {{ job.date_added.strftime("%Y-%m-%d") }}</p>
-                <p><a href="{{ url_for('view_edit_listing', listing_id=job.id) }}"><button class=grey>View, Edit, and/or Delete</button></a></p>
+                <p><a href="{{ url_for('view_edit_listing', listing_id=job.id) }}"><button class=grey>View and/or Edit Listing</button></a>
+                        <a href="{{ url_for('delete_listing', id=job.id) }}"><button class=grey>Delete Listing</button></a></p>
         </div>
         {% endfor %}
 {% endblock %}

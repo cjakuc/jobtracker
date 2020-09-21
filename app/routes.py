@@ -1,17 +1,44 @@
 from app import app, db
 from flask import render_template, flash, redirect, url_for, request
-from app.forms import LoginForm, RegistrationForm, AddListingForm, ViewEditListingForm
+from app.forms import LoginForm, RegistrationForm, AddListingForm, ViewEditListingForm, FilterListingsForm
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User, Listing, Resume, CoverLetter
 from werkzeug.urls import url_parse
 from datetime import date, datetime
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    jobs = current_user.listings
-    return render_template('index.html', title='Home', jobs=jobs)
+    # Get all the available jobs
+    all_jobs = current_user.listings
+    # Forming tuples for location SelectField
+    locations_list = ["All"]
+    for job in all_jobs:
+        if job.location not in locations_list:
+            locations_list.append(job.location)
+    form = FilterListingsForm()
+    form.location.choices = locations_list
+    if form.validate_on_submit():
+        flash(f"Filtering by: Location - {form.location.data} and Status - {form.status.data}")
+        # Check if location filter is 'All' and filter
+        if form.location.data != 'All':
+            jobs = Listing.query.filter_by(location=form.location.data,
+                                           user_id=current_user.id).all()
+        else:
+            jobs = Listing.query.filter_by(user_id=current_user.id).all()
+        # Check if status filter is 'All'
+        if form.status.data != 'All':
+        # Check if status filter is 'Not rejected, turned down, or accepted' and filter
+            if form.status.data == 'Not rejected, turned down, or accepted':
+                jobs = [job for job in jobs if job.status not in ['Rejected', 'Turned Down', 'Accepted']]
+            else:
+                jobs = [job for job in jobs if job.status == form.status.data]
+        return render_template('index.html', title='Home', jobs=jobs, form=form)
+    else:
+        jobs = all_jobs
+
+    return render_template('index.html', title='Home', jobs=jobs, form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -89,13 +116,15 @@ def add_listing():
                           description=form.description.data, location=form.location.data,
                           date_added=form.date_added.data,
                           resume=new_resume, cover_letter=new_cl,
+                          status=form.status.data,
                           user=current_user)
         db.session.add(listing)
         db.session.commit()
         flash(f"Congratulations, you have added a new application for {listing.title} at {listing.company}")
         
-        jobs = current_user.listings
-        return render_template('index.html', title='Home', jobs=jobs)
+        # jobs = current_user.listings
+        # return render_template('index.html', title='Home', jobs=jobs, form=FilterListingsForm())
+        return redirect(url_for('login'))
     return render_template('add_edit_listing.html', title='Add a New Application/Listing!', form=form)
 
 @app.route('/view_edit_listing/<listing_id>', methods=['GET', 'POST'])
@@ -129,4 +158,16 @@ def view_edit_listing(listing_id):
         form.date_added.data = listing.date_added
         form.resume.data = listing.resume
         form.cover_letter.data = listing.cover_letter
+        form.status.data = listing.status
     return render_template('add_edit_listing.html', title='View, Edit or Delete the Listing!', form=form)
+
+@app.route('/delete/<id>', methods=['GET', 'POST'])
+@login_required
+def delete_listing(id):
+    listing = Listing.query.filter_by(id=id,
+                                      user_id=current_user.id).first()
+    
+    db.session.delete(listing)
+    db.session.commit()
+    flash(f"Successfully deleted the {listing.title} listing at {listing.company}")
+    return redirect(url_for('index'))

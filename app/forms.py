@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SubmitField, DateTimeField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SubmitField, DateTimeField, SelectField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length
 from app.models import User
 from datetime import datetime
@@ -53,6 +53,10 @@ class AddListingForm(FlaskForm):
                          validators=[DataRequired()])
     cover_letter = StringField('Cover Letter File Name',
                                validators=[DataRequired()])
+    status = SelectField('Application Status',
+                         choices=[('No Response'), ('Interviewing'), ('Rejected'), ('Received Offer'), ('Turned Down'), ('Accepted')],
+                         coerce=str, validators=[DataRequired()],
+                         default=('No Response'))
     submit = SubmitField('Add Listing')
 
 class ViewEditListingForm(FlaskForm):
@@ -73,5 +77,14 @@ class ViewEditListingForm(FlaskForm):
                          validators=[DataRequired()])
     cover_letter = StringField('Cover Letter File Name',
                                validators=[DataRequired()])
+    status = SelectField('Application Status',
+                         choices=[('No Response'), ('Interviewing'), ('Rejected'), ('Received Offer'), ('Turned Down'), ('Accepted')],
+                         coerce=str, validators=[DataRequired()])
     submit = SubmitField('Update Listing')
-    delete = SubmitField('Delete Listing')
+
+class FilterListingsForm(FlaskForm):
+    location = SelectField('Location', coerce=str, validators=[DataRequired()])
+    status = SelectField('Application Status',
+                         choices=[('No Response'), ('Interviewing'), ('Rejected'), ('Received Offer'), ('Turned Down'), ('Accepted'), ('Not rejected, turned down, or accepted'), ('All')],
+                         coerce=str, validators=[DataRequired()])
+    submit = SubmitField('Filter')
