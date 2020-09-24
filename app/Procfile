@@ -1,2 +1,2 @@
 heroku ps:scale web=1
-web: guinicorn app:app.__init__.py
+web: gunicorn app:app.__init__.py
