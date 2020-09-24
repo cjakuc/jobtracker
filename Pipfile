@@ -14,6 +14,7 @@ flask-sqlalchemy = "*"
 flask-migrate = "*"
 flask-login = "*"
 email-validator = "*"
+gunicorn = "*"
 
 [requires]
 python_version = "3.6"
