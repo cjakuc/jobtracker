@@ -5,6 +5,8 @@
       {% else %}
       <title>Welcome to Job Tracker</title>
       {% endif %}
+      <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
     </head>
     <body>
         <div>
@@ -14,6 +16,7 @@
             <a href="{{ url_for('login') }}">Login</a>
             {% else %}
             <a href="{{ url_for('add_listing') }}">Add Listing</a>
+            <a href="{{ url_for('analysis') }}">Analysis</a>
             <a href="{{ url_for('logout') }}">Logout</a>
             {% endif %}
         </div>

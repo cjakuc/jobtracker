@@ -15,6 +15,7 @@ flask-migrate = "*"
 flask-login = "*"
 email-validator = "*"
 gunicorn = "*"
+plotly = "*"
 
 [requires]
 python_version = "3.6"

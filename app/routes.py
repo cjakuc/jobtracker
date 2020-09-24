@@ -5,6 +5,9 @@ from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User, Listing, Resume, CoverLetter
 from werkzeug.urls import url_parse
 from datetime import date, datetime
+import plotly
+import plotly.graph_objects as go
+import json
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -173,3 +176,47 @@ def delete_listing(id):
     db.session.commit()
     flash(f"Successfully deleted the {listing.title} listing at {listing.company}")
     return redirect(url_for('index'))
+
+@app.route('/analysis', methods=['GET'])
+@login_required
+def analysis():
+    jobs = current_user.listings
+    date_dict = {}
+    for job in jobs:
+        if job.date_added not in date_dict:
+            date_dict[job.date_added.strftime('%Y-%m-%d')] = 1
+        else:
+            date_dict[job.date_added.strftime('%Y-%m-%d')] += 1
+
+    x = list(date_dict.keys())
+    y = list(date_dict.values())
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        x = x,
+        y = y
+    ))
+
+    fig.update_layout(
+        title = {'text': "Number of Applications",
+                 'y':0.9,
+                 'x':0.5,
+                 'xanchor': 'center',
+                 'yanchor': 'top'},
+        xaxis_title = "Date",
+        yaxis_title = "Number of Applications",
+        xaxis=dict(
+            rangeselector=dict(
+                buttons=list([
+                    dict(step="all"),
+                    dict(count=7, label="1 Week", step="day", stepmode="backward"),
+                    dict(count=1, label="1 Month", step="month", stepmode="backward")
+                ])
+            )
+        )
+    )
+
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return render_template('analysis.html', title="Your Job Search Analysis",graphJSON=graphJSON)
