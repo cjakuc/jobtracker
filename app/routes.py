@@ -6,39 +6,41 @@ from app.models import User, Listing, Resume, CoverLetter
 from werkzeug.urls import url_parse
 from datetime import date, datetime
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     # Get all the available jobs
     all_jobs = current_user.listings
     # Forming tuples for location SelectField
-    locations_list = ["All"]
+    locations_list = ["All Locations"]
     for job in all_jobs:
         if job.location not in locations_list:
             locations_list.append(job.location)
     form = FilterListingsForm()
     form.location.choices = locations_list
+    
+    filter_dict = {
+        "All Locations": locations_list[1:],
+        "All Statuses" : ['No Response', 'Interviewing', 'Rejected', 'Received Offer', 'Turned Down', 'Accepted'],
+        "Not rejected, turned down, or accepted" : ['No Response', 'Interviewing', 'Received Offer']
+    }
     if form.validate_on_submit():
-        flash(f"Filtering by: Location - {form.location.data} and Status - {form.status.data}")
-        # Check if location filter is 'All' and filter
-        if form.location.data != 'All':
-            jobs = Listing.query.filter_by(location=form.location.data,
-                                           user_id=current_user.id).all()
+        if form.location.data in filter_dict.keys():
+            loc = filter_dict[form.location.data]
         else:
-            jobs = Listing.query.filter_by(user_id=current_user.id).all()
-        # Check if status filter is 'All'
-        if form.status.data != 'All':
-        # Check if status filter is 'Not rejected, turned down, or accepted' and filter
-            if form.status.data == 'Not rejected, turned down, or accepted':
-                jobs = [job for job in jobs if job.status not in ['Rejected', 'Turned Down', 'Accepted']]
-            else:
-                jobs = [job for job in jobs if job.status == form.status.data]
+            loc = [form.location.data]
+        if form.status.data in filter_dict.keys():
+            stat = filter_dict[form.status.data]
+        else:
+            stat = [form.status.data]
+        # Do the query
+        jobs = Listing.query.filter(Listing.location.in_(loc),
+                                    Listing.status.in_(stat),
+                                    Listing.user_id==current_user.id)
         return render_template('index.html', title='Home', jobs=jobs, form=form)
-    else:
-        jobs = all_jobs
 
-    return render_template('index.html', title='Home', jobs=jobs, form=form)
+    return render_template('index.html', title='Home', jobs=all_jobs, form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

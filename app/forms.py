@@ -85,6 +85,7 @@ class ViewEditListingForm(FlaskForm):
 class FilterListingsForm(FlaskForm):
     location = SelectField('Location', coerce=str, validators=[DataRequired()])
     status = SelectField('Application Status',
-                         choices=[('No Response'), ('Interviewing'), ('Rejected'), ('Received Offer'), ('Turned Down'), ('Accepted'), ('Not rejected, turned down, or accepted'), ('All')],
-                         coerce=str, validators=[DataRequired()])
+                         choices=[('No Response'), ('Interviewing'), ('Rejected'), ('Received Offer'), ('Turned Down'), ('Accepted'), ('Not rejected, turned down, or accepted'), ('All Statuses')],
+                         coerce=str, validators=[DataRequired()],
+                         default='All Statuses')
     submit = SubmitField('Filter')
