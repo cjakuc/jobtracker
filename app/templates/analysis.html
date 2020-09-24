@@ -3,8 +3,15 @@
 {% block content %}
 <div class="chart" id="num_apps">
     <script>
-        var graphs = {{graphJSON | safe}};
+        var graphs = {{numapps_graphJSON | safe}};
         Plotly.plot('num_apps',graphs,{});
+    </script>
+</div>
+
+<div class="chart" id="num_status">
+    <script>
+        var graphs = {{numstatus_graphJSON | safe}};
+        Plotly.plot('num_status',graphs,{});
     </script>
 </div>
 {% endblock %}

@@ -8,6 +8,7 @@ from datetime import date, datetime
 import plotly
 import plotly.graph_objects as go
 import json
+from app.analysis import num_apps, num_status
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -184,42 +185,7 @@ def delete_listing(id):
 @login_required
 def analysis():
     jobs = current_user.listings
-    date_dict = {}
-    for job in jobs:
-        if job.date_added not in date_dict:
-            date_dict[job.date_added.strftime('%Y-%m-%d')] = 1
-        else:
-            date_dict[job.date_added.strftime('%Y-%m-%d')] += 1
+    numapps_graph = num_apps(jobs)
+    numstatus_graph = num_status(jobs)
 
-    x = list(date_dict.keys())
-    y = list(date_dict.values())
-
-    fig = go.Figure()
-
-    fig.add_trace(go.Bar(
-        x = x,
-        y = y
-    ))
-
-    fig.update_layout(
-        title = {'text': "Number of Applications",
-                 'y':0.9,
-                 'x':0.5,
-                 'xanchor': 'center',
-                 'yanchor': 'top'},
-        xaxis_title = "Date",
-        yaxis_title = "Number of Applications",
-        xaxis=dict(
-            rangeselector=dict(
-                buttons=list([
-                    dict(step="all"),
-                    dict(count=7, label="1 Week", step="day", stepmode="backward"),
-                    dict(count=1, label="1 Month", step="month", stepmode="backward")
-                ])
-            )
-        )
-    )
-
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-
-    return render_template('analysis.html', title="Your Job Search Analysis",graphJSON=graphJSON)
+    return render_template('analysis.html', title="Your Job Search Analysis", numapps_graphJSON=numapps_graph, numstatus_graphJSON=numstatus_graph)
