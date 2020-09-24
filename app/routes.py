@@ -148,12 +148,15 @@ def view_edit_listing(listing_id):
         listing.description = form.description.data
         listing.location = form.location.data
         listing.date_added = form.date_added.data
-        listing.resume = form.resume.data
-        listing.cover_letter = form.cover_letter.data
+        listing.resume.file_name = form.resume.data
+        listing.cover_letter.file_name = form.cover_letter.data
+        listing.status = form.status.data
+        # db.session.add(listing)
+        db.session.commit()
 
         flash(f"Congratulations, you have edited an application for {listing.title} at {listing.company}")
         jobs = current_user.listings
-        return render_template('index.html', title='Home', jobs=jobs)
+        return render_template('index.html', title='Home', jobs=jobs, form=FilterListingsForm())
     elif request.method == "GET":
         # Populate the form fields with the current values
         form.company.data = listing.company
